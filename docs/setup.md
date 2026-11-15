@@ -63,7 +63,7 @@ Confirm budget notifications in AWS and confirm each SNS subscription email afte
 
 ## Publish and protect the repository
 
-Create the public repository as the owner and push the source. Use commit identity `Nazmul Hassan <iam.najib@yahoo.com>`. Never publish private output or state. Suggested About description: `Deploy small APIs to AWS with Terraform, OIDC delivery and readiness-based rollback.` Suggested topics: `aws`, `terraform`, `github-actions`, `oidc`, `lambda`, `dynamodb`, `cloudwatch`, `devops`.
+Create your public repository from the template and push the source using your own Git identity. Never publish private output or state. Suggested About description: `Deploy small APIs to AWS with Terraform, OIDC delivery and readiness-based rollback.` Suggested topics: `aws`, `terraform`, `github-actions`, `oidc`, `lambda`, `dynamodb`, `cloudwatch`, `serverless`.
 
 Set repository variable `AWS_REGION`. Set repository secrets `STATE_BUCKET`, `ALERT_EMAIL`, `ECR_URL`, `AWS_PLAN_ROLE_ARN`. Obtain ECR URL and role ARNs privately with `terraform output -raw ecr_url` and `terraform output -json delivery_roles` in `infra/bootstrap`. Leave `BOOTSTRAP_READY` unset until setup is complete: source verification runs, while AWS release jobs stay skipped. Set `BOOTSTRAP_READY=true` only after configuring trust, secrets and environment protection, then dispatch Deploy from main.
 

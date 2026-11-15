@@ -98,7 +98,7 @@ The target is a very small bill at light traffic with applicable free allowance.
 
 Current boundaries:
 
-- One installation per isolated AWS account/region; resource names use a fixed prefix.
+- One installation per isolated AWS account, in one region; resource names use a fixed prefix.
 - The example API is public and unauthenticated. Use fictional data until you add authorisation.
 - Recovery restores the previous image, not prior infrastructure or deleted data.
 - `/metrics` is per Lambda execution environment; CloudWatch supplies aggregate monitoring.

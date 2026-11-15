@@ -1,0 +1,28 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: cloud-delivery
+  cancel-in-progress: false
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+  dev:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && vars.BOOTSTRAP_READY == 'true'
+    uses: ./.github/workflows/release.yml
+    with:
+      environment: dev
+    secrets: inherit
+  prod:
+    needs: dev
+    uses: ./.github/workflows/release.yml
+    with:
+      environment: prod
+      digest: ${{ needs.dev.outputs.digest }}
+    secrets: inherit

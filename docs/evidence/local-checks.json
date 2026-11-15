@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-15",
+  "scope": "Local validation only; no AWS apply or live endpoint used.",
+  "terraform_version": "1.13.5",
+  "aws_provider_version": "6.73.0",
+  "checks": [
+    {
+      "check": "source lint",
+      "exit_code": 0,
+      "output": "All checks passed!"
+    },
+    {
+      "check": "unit and recovery tests",
+      "exit_code": 0,
+      "output": "18 passed, 1 warning in 0.72s"
+    },
+    {
+      "check": "terraform format",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "check": "terraform validate state",
+      "exit_code": 0,
+      "output": "Success! The configuration is valid."
+    },
+    {
+      "check": "terraform validate bootstrap",
+      "exit_code": 0,
+      "output": "Success! The configuration is valid."
+    },
+    {
+      "check": "terraform validate live",
+      "exit_code": 0,
+      "output": "Success! The configuration is valid."
+    },
+    {
+      "check": "terraform lint",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "check": "infrastructure HIGH gate",
+      "exit_code": 0,
+      "output": "Unexcepted HIGH/CRITICAL findings: 0"
+    },
+    {
+      "check": "workflow syntax",
+      "exit_code": 0,
+      "output": ""
+    },
+    {
+      "check": "local image Trivy HIGH/CRITICAL gate",
+      "exit_code": 0,
+      "image_id": "sha256:c005539c29e72e563e71875c2f744540cdb986ca134e22bc4c8252d982a40a97",
+      "findings": 0,
+      "scanner_version": "0.76.2"
+    },
+    {
+      "check": "runtime dependency audit",
+      "exit_code": 0,
+      "resolved_dependencies": 19,
+      "findings": 0
+    }
+  ]
+}

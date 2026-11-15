@@ -1,0 +1,105 @@
+name: Release environment
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      digest:
+        default: ''
+        type: string
+    outputs:
+      digest:
+        description: SHA-256 digest successfully tested in dev
+        value: ${{ jobs.release.outputs.digest }}
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      digest: ${{ steps.image.outputs.digest }}
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_VAR_region: ${{ vars.AWS_REGION }}
+      TF_VAR_environment: ${{ inputs.environment }}
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
+      TF_IN_AUTOMATION: 'true'
+      ECR_URL: ${{ secrets.ECR_URL }}
+      STATE_BUCKET: ${{ secrets.STATE_BUCKET }}
+      PROMOTED_DIGEST: ${{ inputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.5'
+          terraform_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Build image once
+        if: inputs.environment == 'dev'
+        run: docker build --platform linux/amd64 --provenance=false -t candidate:${{ github.sha }} .
+      - uses: aquasecurity/trivy-action@0.35.0
+        if: inputs.environment == 'dev'
+        with:
+          version: v0.76.2
+          image-ref: candidate:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: false
+      - name: Resolve immutable image
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$TF_VAR_environment" = dev ]; then
+            existing=$(aws ecr describe-images --repository-name aws-cloud-deploy \
+              --query "imageDetails[?contains(imageTags || \`[]\`, '$GITHUB_SHA')].imageDigest | [0]" --output text)
+            if [ "$existing" = None ]; then
+              docker tag "candidate:$GITHUB_SHA" "$ECR_URL:$GITHUB_SHA"
+              docker push "$ECR_URL:$GITHUB_SHA" > /tmp/push.log 2>&1
+            fi
+            digest=$(aws ecr describe-images --repository-name aws-cloud-deploy \
+              --image-ids "imageTag=$GITHUB_SHA" --query 'imageDetails[0].imageDigest' --output text)
+          else
+            digest="sha256:$PROMOTED_DIGEST"
+          fi
+          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+          echo "digest=${digest#sha256:}" >> "$GITHUB_OUTPUT"
+          echo "TF_VAR_image_uri=$ECR_URL@$digest" >> "$GITHUB_ENV"
+      - name: Scan the resolved deployment image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          version: v0.76.2
+          image-ref: ${{ env.TF_VAR_image_uri }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: false
+      - name: Initialise environment state
+        shell: bash
+        run: |
+          terraform -chdir=infra/live init -input=false \
+            -backend-config="bucket=$STATE_BUCKET" \
+            -backend-config="region=$AWS_REGION" \
+            -backend-config="key=$TF_VAR_environment/terraform.tfstate" \
+            -backend-config="dynamodb_table=aws-cloud-deploy-locks" > /tmp/init.log 2>&1
+      - name: Apply, smoke test, rollback on failure
+        run: python scripts/deploy.py
+      - name: Verify no drift
+        shell: bash
+        run: terraform -chdir=infra/live plan -input=false -detailed-exitcode > /tmp/drift.log 2>&1
+      - name: Record outcome
+        if: always()
+        run: |
+          echo "Environment: $TF_VAR_environment; commit: $GITHUB_SHA; result: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Image SHA-256: ${{ steps.image.outputs.digest }}" >> "$GITHUB_STEP_SUMMARY"
+          echo 'Raw Terraform output is kept private on the ephemeral runner.' >> "$GITHUB_STEP_SUMMARY"

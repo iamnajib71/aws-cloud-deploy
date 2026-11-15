@@ -1,0 +1,106 @@
+name: Verify
+on:
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install -r requirements-dev.txt
+      - run: python -m ruff check app scripts tests
+      - run: python -m pytest -q
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.5'
+          terraform_wrapper: false
+      - run: terraform fmt -check -recursive infra
+      - name: Validate all Terraform roots
+        run: |
+          for root in state bootstrap live; do
+            terraform -chdir=infra/$root init -backend=false -input=false -lockfile=readonly
+            terraform -chdir=infra/$root validate
+          done
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.59.1
+      - run: tflint --init
+      - run: tflint --recursive
+      - uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: infra
+          additional_args: --minimum-severity HIGH
+      - name: Build candidate image
+        run: docker build --platform linux/amd64 --provenance=false -t candidate:${{ github.sha }} .
+      - uses: aquasecurity/trivy-action@0.35.0
+        with:
+          version: v0.76.2
+          image-ref: candidate:${{ github.sha }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: false
+
+  plan:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    env:
+      TF_VAR_region: ${{ vars.AWS_REGION }}
+      TF_VAR_environment: dev
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
+      TF_IN_AUTOMATION: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.13.5'
+          terraform_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          mask-aws-account-id: true
+      - name: Plan dev with deployed image
+        id: plan
+        env:
+          STATE_BUCKET: ${{ secrets.STATE_BUCKET }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          terraform -chdir=infra/live init -input=false \
+            -backend-config="bucket=$STATE_BUCKET" \
+            -backend-config="region=$TF_VAR_region" \
+            -backend-config="key=dev/terraform.tfstate" \
+            -backend-config="dynamodb_table=aws-cloud-deploy-locks" > /tmp/init.log 2>&1
+          export TF_VAR_image_uri=$(terraform -chdir=infra/live output -raw image_uri)
+          echo "::add-mask::$TF_VAR_image_uri"
+          terraform -chdir=infra/live plan -input=false -out=/tmp/pr.tfplan > /tmp/plan.log 2>&1
+          terraform -chdir=infra/live show -json /tmp/pr.tfplan > /tmp/plan.json
+          python - <<'PY'
+          import collections, json, os
+          changes = json.load(open('/tmp/plan.json')).get('resource_changes', [])
+          counts = collections.Counter('/'.join(c['change']['actions']) for c in changes)
+          text = 'Terraform dev plan (existing deployed image): ' + ', '.join(f'{k}: {v}' for k,v in sorted(counts.items()))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write('summary=' + text + '\n')
+          PY
+      - name: Comment sanitised plan summary
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          PLAN_SUMMARY: ${{ steps.plan.outputs.summary }}
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+              body: process.env.PLAN_SUMMARY || 'Terraform plan failed. Check bootstrap, permissions and workflow status. Raw state and account details are intentionally not published.'
+            });

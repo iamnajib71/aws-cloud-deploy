@@ -17,6 +17,6 @@
 | Runtime size, concurrency, throttle and data TTL | `infra/modules/app/` and `app/main.py` |
 | Alarm thresholds and dashboard | `infra/modules/observability/` |
 
-Resource names currently use the fixed `aws-cloud-deploy` prefix. Use one installation per isolated AWS account/region; multi-project namespacing is not supported yet. The example endpoints are public and unauthenticated. Add an authorisation design before storing real user data.
+Resource names currently use the fixed `aws-cloud-deploy` prefix. Use one installation per isolated AWS account, in one region: IAM roles, OIDC and budgets also have account-wide scope. Multi-project namespacing is not supported yet. The example endpoints are public and unauthenticated. Add an authorisation design before storing real user data.
 
 Evidence links in a newly generated copy point to upstream verification. Replace them with your own runs before claiming that your copy is deployed. Repository secrets, environment protection and AWS resources are not copied by GitHub templates; configure them for your own repository.

@@ -2,6 +2,8 @@
 
 Recorded on 15 November 2026. Machine-readable results: [local-checks.json](local-checks.json).
 
+The same verification gates also passed on a [GitHub-hosted runner](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43679091838). Dev and prod release jobs were skipped because owner bootstrap was not marked ready. This is verification evidence, not a cloud deployment.
+
 | Check | Recorded result |
 |---|---|
 | API, HTTP API event adapter, readiness/recovery and teardown tests | 18 passed; 1 test-client dependency deprecation warning |

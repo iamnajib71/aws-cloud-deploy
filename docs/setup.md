@@ -73,6 +73,6 @@ Require Verify checks for `main` and review same-repository PRs before running t
 
 Merge a healthy change to main. The deploy workflow verifies, builds/scans an image, pushes an immutable commit-SHA tag, resolves the digest, applies dev, checks readiness, and requires a no-drift plan. Approve prod only after reviewing dev. Production receives that exact digest.
 
-The plan job on subsequent same-repository PRs reads the current dev image from state; it deliberately requires an initial successful dev deployment. It comments action counts, never raw plan values. Full plans/state stay off public artifacts. A clean clone must use the same backend, environment, notification email and deployed image digest to reproduce an empty plan.
+The plan job on subsequent same-repository PRs reads the current dev image from state; it deliberately requires an initial successful dev deployment. Before `BOOTSTRAP_READY=true`, cloud planning and release jobs are skipped while source verification runs. Once ready, same-repository PRs must produce a plan. It comments action counts, never raw plan values. Full plans/state stay off public artifacts. A clean clone must use the same backend, environment, notification email and deployed image digest to reproduce an empty plan.
 
 Follow [the rollback drill](runbook.md#deliberately-broken-release) after the baseline release. Capture and redact the owner screenshots yourself, then fill the [evidence register](evidence.md). Profile promotion is gated by that evidence.

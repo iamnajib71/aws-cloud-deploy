@@ -5,6 +5,7 @@ The repository currently contains implementation and local checks. It does not y
 | Claim | Required evidence | Status |
 |---|---|---|
 | Application and recovery logic tested locally | [Local validation](evidence/local-validation.md), repeatable tests | See local report |
+| Hosted verification | [Successful run](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43679091838): source tests, Terraform validation/lint, tfsec, image build and Trivy | Passed; AWS jobs skipped |
 | Healthy release to real AWS | Exact successful Deploy workflow URL, redacted endpoint check and Terraform result | Pending |
 | Broken release automatically restored | Exact rejected Deploy workflow URL with explicit rollback/readiness result; before/after digests redacted consistently | Pending |
 | Protected same-image promotion | Prod environment approval and matching dev/prod digest, with run links | Pending |

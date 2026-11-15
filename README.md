@@ -4,7 +4,7 @@ A small API delivery project designed to give a support team repeatable AWS rele
 
 Demo recording: **pending owner-run AWS deployment**; see the [evidence register](docs/evidence.md).
 
-[![Verify](https://github.com/iamnajib71/aws-cloud-deploy/actions/workflows/ci.yml/badge.svg)](https://github.com/iamnajib71/aws-cloud-deploy/actions/workflows/ci.yml)
+[![Verification](https://img.shields.io/github/actions/workflow/status/iamnajib71/aws-cloud-deploy/deploy.yml?branch=main&label=verification)](https://github.com/iamnajib71/aws-cloud-deploy/actions/workflows/deploy.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/language-Python-blue.svg)](app/main.py)
 
@@ -14,7 +14,7 @@ Demo recording: **pending owner-run AWS deployment**; see the [evidence register
 |---|---|
 | **The problem** | A small service team needs to release API changes without manually managing servers or leaving an expensive cloud lab running. |
 | **What I built** | I built a containerised API, infrastructure definitions, delivery workflows and recovery scripts. I separated the owner bootstrap from routine releases and documented the handover. |
-| **Results** | Local verification is recorded in [validation evidence](docs/evidence/local-validation.md). Live deployment, rollback and billing results are pending. |
+| **Results** | [Local checks](docs/evidence/local-validation.md): 18 tests pass; the image scan has no HIGH/CRITICAL findings. Live deployment, rollback and billing results are pending. |
 | **Skills shown** | AWS, Terraform, GitHub Actions, OIDC, Docker, Python, DynamoDB, CloudWatch, incident response. |
 | **Relevant roles** | Junior DevOps Engineer, Cloud Support Engineer, Junior Platform Engineer. |
 | **Try it / evidence** | [Quick start](#quick-start) · [evidence register](docs/evidence.md) · [architecture](docs/architecture.md) · [runbook](docs/runbook.md). |
@@ -37,9 +37,9 @@ What this project is intended to prove:
 
 ## Problems I hit and how I solved them
 
-- The README standard was outside the new project folder. I followed the supplied source and kept live results explicitly pending.
+- The vendor base image failed its security scan. I updated system packages and removed unused build tooling and the local emulator; the final image passes its security gate.
 - Windows sandbox restrictions blocked the async test loop and Terraform provider communication. I ran those checks with the required local process access; see [validation](docs/evidence/local-validation.md).
-- Encryption with a dedicated key adds a recurring cost to a tiny lab. I used built-in encryption for state and recorded the narrow notification exception in [security](docs/security.md).
+- GitHub rejected the first reusable workflow before starting a runner. I corrected the caller's permission grant and kept cloud credentials restricted to their jobs.
 - A failed image release can leave Terraform state out of sync if recovery bypasses Terraform. The recovery script applies the previous digest through Terraform and checks readiness again.
 
 ## Architecture
@@ -89,6 +89,7 @@ The state bucket and its encrypted contents remain. **Retained storage can still
 ## Results and evidence
 
 - [Local checks](docs/evidence/local-validation.md)
+- [Green hosted verification](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43679091838): tests and security gates passed; AWS release jobs were skipped.
 - Green AWS deploy workflow: **pending**
 - Deliberately broken deploy with verified rollback: **pending**
 - Clean-clone no-drift plan: **pending**

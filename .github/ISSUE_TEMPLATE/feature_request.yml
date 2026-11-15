@@ -1,0 +1,15 @@
+name: Feature request
+description: Suggest a concrete usability improvement
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What are you trying to do?
+      description: Describe the current obstacle and who it affects.
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: Proposed behaviour
+      description: Show the command or workflow you would like to use.

@@ -1,11 +1,13 @@
 PYTHON ?= python
 
-.PHONY: test lint init destroy
+.PHONY: test lint init doctor destroy
 test:
 	$(PYTHON) -m pytest
 lint:
-	$(PYTHON) -m ruff check app scripts tests
+	$(PYTHON) -m ruff check app cloud_deploy scripts tests
 init:
-	$(PYTHON) scripts/manage.py init
+	$(PYTHON) -m cloud_deploy init
+doctor:
+	$(PYTHON) -m cloud_deploy doctor
 destroy:
-	$(PYTHON) scripts/manage.py destroy
+	$(PYTHON) -m cloud_deploy destroy

@@ -10,13 +10,15 @@ Use an isolated demo account: the HTTP API permission scope and account-wide bud
 
 ## Local private configuration
 
-Create `config.local.json` (ignored). Substitute your real values locally; never commit them:
+Recommended: run `python -m cloud_deploy init`, then `python -m cloud_deploy doctor`. The CLI creates the file below without creating cloud resources. Use `doctor --aws` to verify your session without displaying its identity.
+
+Alternatively, create `config.local.json` (ignored). Substitute your real values locally; never commit them:
 
 ```json
 {
   "region": "us-east-1",
   "state_bucket": "YOUR-GLOBALLY-UNIQUE-PRIVATE-BUCKET",
-  "repository": "iamnajib71/aws-cloud-deploy",
+  "repository": "YOUR-OWNER/YOUR-REPOSITORY",
   "alert_email": "YOUR-NOTIFICATION-EMAIL"
 }
 ```
@@ -27,7 +29,7 @@ Use the same values as Terraform environment variables, rather than committing a
 export TF_VAR_region=us-east-1
 export TF_VAR_bucket_name=YOUR-GLOBALLY-UNIQUE-PRIVATE-BUCKET
 export TF_VAR_state_bucket="$TF_VAR_bucket_name"
-export TF_VAR_repository=iamnajib71/aws-cloud-deploy
+export TF_VAR_repository=YOUR-OWNER/YOUR-REPOSITORY
 export TF_VAR_alert_email=YOUR-NOTIFICATION-EMAIL
 ```
 
@@ -61,7 +63,7 @@ Confirm budget notifications in AWS and confirm each SNS subscription email afte
 
 ## Publish and protect the repository
 
-Create the public repository as the owner and push the source. Use commit identity `Nazmul Hassan <iam.najib@yahoo.com>`. Never publish private output or state. Suggested About description: `Small AWS API delivery lab with Terraform, GitHub Actions and automatic release recovery.` Suggested topics: `aws`, `terraform`, `github-actions`, `oidc`, `lambda`, `dynamodb`, `cloudwatch`, `devops`.
+Create the public repository as the owner and push the source. Use commit identity `Nazmul Hassan <iam.najib@yahoo.com>`. Never publish private output or state. Suggested About description: `Deploy small APIs to AWS with Terraform, OIDC delivery and readiness-based rollback.` Suggested topics: `aws`, `terraform`, `github-actions`, `oidc`, `lambda`, `dynamodb`, `cloudwatch`, `devops`.
 
 Set repository variable `AWS_REGION`. Set repository secrets `STATE_BUCKET`, `ALERT_EMAIL`, `ECR_URL`, `AWS_PLAN_ROLE_ARN`. Obtain ECR URL and role ARNs privately with `terraform output -raw ecr_url` and `terraform output -json delivery_roles` in `infra/bootstrap`. Leave `BOOTSTRAP_READY` unset until setup is complete: source verification runs, while AWS release jobs stay skipped. Set `BOOTSTRAP_READY=true` only after configuring trust, secrets and environment protection, then dispatch Deploy from main.
 

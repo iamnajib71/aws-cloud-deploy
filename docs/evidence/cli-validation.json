@@ -1,0 +1,8 @@
+{
+  "date": "2026-11-15",
+  "scope": "Repository-local CLI and API/recovery regression tests; no AWS apply",
+  "tests": "32 passed, 1 warning in 0.76s",
+  "ruff": "passed",
+  "actionlint": "passed",
+  "stdlib_entrypoint": "python -S -m cloud_deploy --help passed"
+}

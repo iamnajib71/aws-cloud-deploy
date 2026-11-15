@@ -1,0 +1,13 @@
+usage: python -m cloud_deploy [-h] {init,doctor,health,destroy} ...
+
+Configure, check and tear down the AWS Cloud Deploy starter.
+
+positional arguments:
+  {init,doctor,health,destroy}
+    init                create ignored local configuration; no AWS changes
+    doctor              check tools and local configuration
+    health              check a deployed API's /health response
+    destroy             destroy dev, prod and bootstrap; retain state bucket
+
+options:
+  -h, --help            show this help message and exit

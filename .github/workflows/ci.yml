@@ -13,7 +13,7 @@ jobs:
         with:
           python-version: '3.13'
       - run: pip install -r requirements-dev.txt
-      - run: python -m ruff check app scripts tests
+      - run: python -m ruff check app cloud_deploy scripts tests
       - run: python -m pytest -q
       - uses: hashicorp/setup-terraform@v3
         with:

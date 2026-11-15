@@ -2,6 +2,8 @@
 
 Recorded on 15 November 2026. Machine-readable results: [local-checks.json](local-checks.json).
 
+The subsequent CLI usability update passes 32 tests, including the original API/recovery checks. Its separate [validation record](cli-validation.json) and actual [CLI help output](cli-help.txt) cover configuration, prerequisite diagnostics and endpoint validation. The earlier results below describe the initial implementation.
+
 The same verification gates also passed on a [GitHub-hosted runner](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43679091838). Dev and prod release jobs were skipped because owner bootstrap was not marked ready. This is verification evidence, not a cloud deployment.
 
 | Check | Recorded result |

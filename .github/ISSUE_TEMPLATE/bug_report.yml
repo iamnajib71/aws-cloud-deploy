@@ -1,0 +1,20 @@
+name: Bug report
+description: Report a reproducible setup, CLI or deployment problem
+body:
+  - type: markdown
+    attributes:
+      value: Do not include AWS account IDs, credentials, state, plans or unredacted console output. Use private reporting for security issues.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include what you expected and the steps that reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python/Terraform/Docker versions and repository commit. Share sanitised doctor results only.
+    validations:
+      required: true

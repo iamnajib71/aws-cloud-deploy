@@ -11,6 +11,10 @@ concurrency:
   cancel-in-progress: false
 jobs:
   verify:
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
     uses: ./.github/workflows/ci.yml
   dev:
     needs: verify

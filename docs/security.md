@@ -2,6 +2,8 @@
 
 ## Identity and trust
 
+Local-session mode sets `enable_github_oidc=false`, provisions no GitHub identity provider or delivery roles, and uses temporary owner-session credentials for Terraform. GitHub cloud jobs remain disabled. This is an explicit alternative for managed projects that prohibit identity providers; it is not evidence of OIDC deployment. For OIDC mode, set the exact GitHub `github_oidc_subject_prefix`, including immutable IDs where required.
+
 No access keys belong in repository secrets. The owner bootstrap creates one OIDC provider and separate plan, dev and prod roles. Trust requires `aud = sts.amazonaws.com` and an exact `sub`:
 
 ```text

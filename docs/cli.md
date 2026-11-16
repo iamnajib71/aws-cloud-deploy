@@ -19,7 +19,7 @@ python -m cloud_deploy destroy
 | `health URL` | Checks for HTTP 200 and `{"status":"ok"}` at the API's `/health` endpoint. | No; sends requests to the URL |
 | `destroy` | Removes dev, prod and bootstrap in dependency order. Stops on cleanup failure. | No; deletes resources |
 
-`init` also accepts `--repository`, `--region`, `--state-bucket` and `--alert-email` for non-interactive use. Prefer the prompts to avoid putting private values in shell history. Configuration is validated before it is written. Edit the ignored file to change it; there is no silent overwrite option.
+`init` also accepts `--repository`, `--region`, `--state-bucket`, `--alert-email` and optional `--profile` for non-interactive use. Prefer the prompts to avoid putting private values in shell history. Configuration is validated before it is written. Edit the ignored file to change it; there is no silent overwrite option.
 
 Exit code 0 means the command passed. Exit code 1 means readiness, prerequisites or an operation failed; usage errors return 2. `doctor` does not apply Terraform or validate AWS permissions for every resource. A healthy STS session does not prove deployment permission.
 

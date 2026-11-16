@@ -26,6 +26,10 @@ jobs:
             terraform -chdir=infra/$root init -backend=false -input=false -lockfile=readonly
             terraform -chdir=infra/$root validate
           done
+      - name: Test deployment modes without cloud credentials
+        run: |
+          terraform -chdir=infra/bootstrap test
+          terraform -chdir=infra/live test
       - uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: v0.59.1

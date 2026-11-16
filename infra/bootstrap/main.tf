@@ -3,8 +3,30 @@ terraform {
   required_providers { aws = { source = "hashicorp/aws", version = "~> 6.0" } }
   backend "s3" { use_lockfile = true }
 }
+moved {
+  from = aws_iam_openid_connect_provider.github
+  to   = aws_iam_openid_connect_provider.github[0]
+}
+moved {
+  from = aws_iam_role_policy.push
+  to   = aws_iam_role_policy.push[0]
+}
 variable "region" { type = string }
 variable "state_bucket" { type = string }
+variable "enable_github_oidc" {
+  type        = bool
+  default     = true
+  description = "Disable for a local-session deployment in projects that prohibit IAM providers."
+}
+variable "github_oidc_subject_prefix" {
+  type        = string
+  default     = null
+  description = "Exact repo subject prefix reported by GitHub, including immutable IDs when enabled."
+  validation {
+    condition     = var.github_oidc_subject_prefix == null ? true : can(regex("^repo:[A-Za-z0-9_.@-]+/[A-Za-z0-9_.@-]+$", var.github_oidc_subject_prefix))
+    error_message = "Supply an exact repo:owner/repository prefix without wildcards or a context suffix."
+  }
+}
 variable "repository" {
   type = string
   validation {
@@ -22,8 +44,11 @@ provider "aws" {
 }
 data "aws_caller_identity" "current" {}
 locals {
-  name    = "aws-cloud-deploy"
-  account = data.aws_caller_identity.current.account_id
+  name           = "aws-cloud-deploy"
+  account        = data.aws_caller_identity.current.account_id
+  delivery_roles = var.enable_github_oidc ? toset(["plan", "dev", "prod"]) : toset([])
+  deploy_roles   = var.enable_github_oidc ? toset(["dev", "prod"]) : toset([])
+  subject_prefix = coalesce(var.github_oidc_subject_prefix, "repo:${var.repository}")
 }
 resource "aws_dynamodb_table" "lock" {
   name         = "${local.name}-locks"
@@ -48,16 +73,17 @@ module "runtime" {
   log_arn   = "arn:aws:logs:${var.region}:${local.account}:log-group:/aws/lambda/${local.name}-${each.key}"
 }
 resource "aws_iam_openid_connect_provider" "github" {
+  count          = var.enable_github_oidc ? 1 : 0
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
 }
 data "aws_iam_policy_document" "trust" {
-  for_each = toset(["plan", "dev", "prod"])
+  for_each = local.delivery_roles
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github.arn]
+      identifiers = [aws_iam_openid_connect_provider.github[0].arn]
     }
     condition {
       test     = "StringEquals"
@@ -67,7 +93,7 @@ data "aws_iam_policy_document" "trust" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = [each.key == "plan" ? "repo:${var.repository}:pull_request" : "repo:${var.repository}:environment:${each.key}"]
+      values   = [each.key == "plan" ? "${local.subject_prefix}:pull_request" : "${local.subject_prefix}:environment:${each.key}"]
     }
   }
 }
@@ -78,7 +104,7 @@ resource "aws_iam_role" "github" {
   max_session_duration = 3600
 }
 data "aws_iam_policy_document" "state" {
-  for_each = toset(["plan", "dev", "prod"])
+  for_each = local.delivery_roles
   statement {
     actions   = ["s3:ListBucket"]
     resources = ["arn:aws:s3:::${var.state_bucket}"]
@@ -108,6 +134,11 @@ data "aws_iam_policy_document" "state" {
       variable = "dynamodb:LeadingKeys"
       values   = ["${var.state_bucket}/${each.key == "plan" ? "dev" : each.key}/terraform.tfstate*"]
     }
+    condition {
+      test     = "Null"
+      variable = "dynamodb:LeadingKeys"
+      values   = ["false"]
+    }
   }
 }
 resource "aws_iam_role_policy" "state" {
@@ -117,7 +148,7 @@ resource "aws_iam_role_policy" "state" {
   policy   = each.value.json
 }
 data "aws_iam_policy_document" "read" {
-  for_each = { plan = "dev", dev = "dev", prod = "prod" }
+  for_each = { for key in local.delivery_roles : key => key == "plan" ? "dev" : key }
   statement {
     actions = ["logs:DescribeLogGroups", "cloudwatch:DescribeAlarms", "sns:GetSubscriptionAttributes"]
     # Provider discovery calls need resource wildcard access.
@@ -159,7 +190,7 @@ resource "aws_iam_role_policy" "read" {
   policy   = data.aws_iam_policy_document.read[each.key].json
 }
 data "aws_iam_policy_document" "deploy" {
-  for_each = toset(["dev", "prod"])
+  for_each = local.deploy_roles
   statement {
     actions = ["lambda:CreateFunction", "lambda:UpdateFunctionCode", "lambda:UpdateFunctionConfiguration", "lambda:DeleteFunction",
     "lambda:AddPermission", "lambda:RemovePermission", "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency", "lambda:TagResource", "lambda:UntagResource"]
@@ -233,6 +264,7 @@ data "aws_iam_policy_document" "push" {
   }
 }
 resource "aws_iam_role_policy" "push" {
+  count  = var.enable_github_oidc ? 1 : 0
   name   = "push-image"
   role   = aws_iam_role.github["dev"].id
   policy = data.aws_iam_policy_document.push.json

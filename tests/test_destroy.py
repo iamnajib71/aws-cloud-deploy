@@ -40,3 +40,27 @@ def test_destroy_stops_before_shared_if_workload_cleanup_fails(monkeypatch):
     with pytest.raises(subprocess.CalledProcessError):
         manage.destroy({})
     assert "bootstrap" not in shared
+
+
+@pytest.mark.parametrize("message,skip", [("No state file was found!", True),
+                                         ("AccessDenied: state is inaccessible", False)])
+def test_destroy_skips_missing_state_but_preserves_access_errors(monkeypatch, message, skip):
+    monkeypatch.setattr(manage, "configure", lambda *a, **k: None)
+    destroyed = []
+
+    def run(root, *args, **kwargs):
+        if args[0] == "output":
+            return SimpleNamespace(stdout="{}")
+        if args[0] == "state":
+            raise subprocess.CalledProcessError(1, "terraform state list", stderr=message)
+        destroyed.append(root)
+        return SimpleNamespace(stdout="")
+
+    monkeypatch.setattr(manage, "run", run)
+    if skip:
+        manage.destroy({})
+        assert destroyed == ["bootstrap"]
+    else:
+        with pytest.raises(subprocess.CalledProcessError):
+            manage.destroy({})
+        assert destroyed == []

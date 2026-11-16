@@ -2,7 +2,7 @@
 
 **Actual monthly cost: pending. No Cost Explorer screenshot has been captured.** The owner must record the reporting period, region, usage, gross service cost, credits and net billed cost. A partially elapsed month is month-to-date, not an actual full monthly cost.
 
-The live dev preview runs in `ap-southeast-2` on the new AWS Free experience with finite credits. No billing-plan upgrade was performed. This proves deployment, not permanent free hosting. Only dev is running; prod has not been deployed. See the [live evidence](evidence.md).
+The verified dev preview ran in `ap-southeast-2` on the new AWS Free experience with finite credits. No billing-plan upgrade was performed. This proves deployment, not permanent free hosting. Only dev was deployed; prod was not deployed. The owner requested full cleanup after verification. The workload destroy passed, and the state bucket and all versions were also deleted after private current-state backups. [Teardown evidence](evidence/teardown.json) records resource checks; it does not establish a final invoice amount. See the [live evidence](evidence.md).
 
 The running target is below about US$2/month for very light demo traffic **when the account has enough applicable free allowance**. AWS eligibility and credits vary by account creation date and other account usage. Verify them in Billing before deploying. Without dashboard free allowance, this design can exceed the target even with no traffic: run it for a short recorded demo, then destroy it.
 

@@ -1,6 +1,6 @@
 # Evidence register
 
-The dev API is deployed to real AWS in `ap-southeast-2`. [Try readiness](https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com/health). Deployment and automatic recovery used a temporary local session because this project's managed policy blocks OIDC provider creation. These results are separate from hosted CI verification.
+The dev API was deployed to real AWS in `ap-southeast-2` and verified before owner-requested teardown. Endpoint checks below are historical deployment evidence, not a promise of an available service. Deployment and automatic recovery used a temporary local session because this project's managed policy blocks OIDC provider creation. These results are separate from hosted CI verification.
 
 | Claim | Required evidence | Status |
 |---|---|---|
@@ -14,9 +14,10 @@ The dev API is deployed to real AWS in `ap-southeast-2`. [Try readiness](https:/
 | No drift from a clean clone | [Post-recovery plan](evidence/clean-clone-plan.json), source commit and exit 0 | Passed |
 | Image scan acceptance | [Sanitised Trivy summary for deployed digest](evidence/deployed-image-scan.json) | No HIGH/CRITICAL findings; no image exceptions |
 | Monitoring configuration and subscription | [AWS API readback](evidence/monitoring-verification.json) | Dashboard, two alarms and confirmed email subscription verified |
-| Alarm delivery and screenshots | Owner dashboard, alarm and notification screenshots | Pending; confirmation alone does not establish alarm delivery |
+| Alarm email delivery | [Sanitised owner-reported receipt of both actual alarm emails](evidence/alarm-delivery.json) | Confirmed during the live drill |
+| Console screenshots | Owner dashboard/alarm screenshots | Pending |
 | Monthly running cost | Owner Cost Explorer screenshot, period, gross usage and net cost | Pending |
-| Teardown | Redacted Terraform destroys, service checks, delayed billing review | Pending; preview is currently running |
+| Teardown | [Successful destroy and AWS inventory](evidence/teardown.json) | Workload removed; owner also approved state bucket deletion after private backup. Delayed billing review pending |
 | Demo | Owner-recorded 30–90 second GIF showing deployment and recovery | Pending |
 
 Machine-readable records are sanitised observations from actual checks, not independent audit attestations. Raw state, plans, registry metadata and Terraform logs remain private. The deployed application image was built from commit `28bcd95ac9f0f1bf08d3878aefcabaf395417855`. The subsequent Windows runner correction was exercised during recovery and does not alter the image contents. Never describe local recovery as a GitHub workflow run.

@@ -34,6 +34,8 @@ jobs:
         with:
           tflint_version: v0.59.1
       - run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: tflint --recursive
       - uses: aquasecurity/tfsec-action@v1.0.3
         with:

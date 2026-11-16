@@ -2,7 +2,7 @@
 
 Recorded on 15 November 2026. Machine-readable results: [local-checks.json](local-checks.json).
 
-The live deployment update passes 36 Python tests and 3 Terraform mock tests. It also corrects Windows environment-variable spelling for Terraform. [Live deployment and recovery evidence](../evidence.md) is recorded separately.
+The live deployment update passes 38 Python tests and 3 Terraform mock tests. It also corrects Windows environment-variable spelling for Terraform. [Live deployment and recovery evidence](../evidence.md) is recorded separately.
 
 The subsequent CLI usability update passes 32 tests, including the original API/recovery checks. Its separate [validation record](cli-validation.json) and actual [CLI help output](cli-help.txt) cover configuration, prerequisite diagnostics and endpoint validation. The earlier results below describe the initial implementation.
 

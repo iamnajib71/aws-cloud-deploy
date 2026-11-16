@@ -54,7 +54,13 @@ def destroy(config):
     for environment in ["prod", "dev"]:
         configure(config, "live", environment)
         values = json.loads(run("live", "output", "-json", capture=True).stdout)
-        resources = run("live", "state", "list", capture=True).stdout.strip()
+        try:
+            resources = run("live", "state", "list", capture=True).stdout.strip()
+        except subprocess.CalledProcessError as error:
+            # An environment that was never deployed has no state object yet.
+            if "No state file was found" not in (error.stderr or ""):
+                raise
+            resources = ""
         if resources:
             # An interrupted first apply can have resources before outputs exist.
             os.environ["TF_VAR_image_uri"] = values.get("image_uri", {}).get(

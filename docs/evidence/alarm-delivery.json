@@ -1,0 +1,35 @@
+{
+  "evidence_type": "Owner-reported receipt of actual AWS alarm emails; sanitised transcription",
+  "region": "ap-southeast-2",
+  "related_test": "Deliberately unhealthy image followed by automatic recovery",
+  "notifications": [
+    {
+      "alarm": "aws-cloud-deploy-dev-5xx-rate",
+      "transition": "OK -> ALARM",
+      "event_time_utc": "2026-11-16T09:41:06Z",
+      "threshold_percent": 5,
+      "period_seconds": 60,
+      "evaluation_periods": 2,
+      "observations": [
+        {"time_utc": "2026-11-16T09:39:00Z", "value_percent": 100},
+        {"time_utc": "2026-11-16T09:40:00Z", "value_percent": 100}
+      ],
+      "owner_confirmed_email_receipt": true
+    },
+    {
+      "alarm": "aws-cloud-deploy-dev-latency",
+      "transition": "OK -> ALARM",
+      "event_time_utc": "2026-11-16T09:43:07Z",
+      "statistic": "p95",
+      "threshold_ms": 1500,
+      "period_seconds": 60,
+      "evaluation_periods": 2,
+      "observations": [
+        {"time_utc": "2026-11-16T09:39:00Z", "value_ms": 5070.247224380714},
+        {"time_utc": "2026-11-16T09:40:00Z", "value_ms": 4012.203327852404}
+      ],
+      "owner_confirmed_email_receipt": true
+    }
+  ],
+  "limits": "Owner supplied email text, not a console screenshot. The latency root cause was not separately investigated. Private project identifiers and email/unsubscribe links were omitted."
+}

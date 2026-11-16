@@ -1,0 +1,31 @@
+{
+  "workload_command": "python -m cloud_deploy destroy",
+  "workload_command_exit_code": 0,
+  "workload_destroy_completed_at_utc": "2026-11-16T09:48:14.940156+00:00",
+  "final_state_cleanup_verified_at_utc": "2026-11-16T09:51:14.484011+00:00",
+  "state_bucket_deleted": true,
+  "deleted_state_object_versions_and_markers": 34,
+  "private_current_state_backups_verified": true,
+  "remaining_matching_resources": {
+    "lambda_functions": [],
+    "http_apis": [],
+    "dynamodb_tables": [],
+    "ecr_repositories": [],
+    "cloudwatch_log_groups_selected_region": [],
+    "cloudwatch_log_groups_us_east_1": [],
+    "sns_topics": [],
+    "cloudwatch_alarms": [],
+    "cloudwatch_dashboards": [],
+    "iam_runtime_roles": [],
+    "budgets": [],
+    "s3_state_buckets": []
+  },
+  "scope": "Resources created by this installation; no project workloads were created outside ap-southeast-2. Global IAM, budget and S3 resources were checked separately.",
+  "plan_check": {
+    "plan_type": "FREE",
+    "status": "ACTIVE",
+    "remaining_credits_usd": 160,
+    "plan_upgraded": false
+  },
+  "billing_limit": "Resource removal is verified. Previously incurred usage and delayed billing are not a zero-invoice attestation. No Cost Explorer screenshot has been supplied."
+}

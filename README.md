@@ -10,14 +10,14 @@ A reusable starter and CLI for shipping small container APIs to AWS with Terrafo
 
 [Use this template](https://github.com/new?template_name=aws-cloud-deploy&template_owner=iamnajib71) · [Setup guide](docs/setup.md) · [CLI reference](docs/cli.md) · [Contributing](CONTRIBUTING.md)
 
-> **Live preview:** [try the health endpoint](https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com/health). Real item storage, automatic recovery from a broken image and a clean-clone plan with no drift are [recorded](docs/evidence.md). Deployment uses a temporary local AWS session. GitHub OIDC delivery, production promotion, measured monthly cost and owner screenshots remain pending.
+> **Verified AWS demo:** real item storage, automatic recovery from a broken image and a clean-clone plan with no drift are [recorded](docs/evidence.md). The workload and state bucket were removed after verification; this repository is a deployable template, with no permanent shared endpoint. Deployment used a temporary local session. GitHub OIDC delivery, production promotion, measured monthly cost and owner screenshots remain pending.
 
 What this proves:
 
-- **AWS:** a container API runs on Lambda with HTTP API and DynamoDB storage.
+- **AWS:** a container API ran on Lambda with HTTP API and DynamoDB storage.
 - **Terraform:** remote state and a clean-clone plan reproduce the live dev environment.
 - **CI/CD with OIDC:** verification passes; OIDC delivery is implemented but awaits a compatible project.
-- **Monitoring and rollback:** dashboard and alarms are configured; a broken image automatically recovered.
+- **Monitoring and rollback:** both alarm emails arrived during the drill; a broken image automatically recovered.
 
 ## Start here
 
@@ -82,13 +82,13 @@ Start with the included FastAPI example: `/health`, `/items` and `/metrics`. Rep
 
 [Customisation guide →](docs/customise.md)
 
-Try the shared preview with a read-only request:
+After deploying your own installation, check readiness:
 
 ```sh
-curl --fail https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com/health
+curl --fail https://YOUR-API-URL/health
 ```
 
-The preview also exposes `/items` and `/metrics`. It is public, rate-limited and temporary: use fictional data only and expect throttling or teardown. Create your own installation for development work. Projects using the new AWS Free experience can follow the [local-session route](docs/free-project.md); the OIDC route needs permission to create an identity provider.
+The API also exposes `/items` and `/metrics`. It is public and rate-limited: use fictional data until you add authentication. Projects using the new AWS Free experience can follow the [local-session route](docs/free-project.md); the OIDC route needs permission to create an identity provider. The recorded upstream demo was time-boxed and is not a hosted service.
 
 ```mermaid
 flowchart LR

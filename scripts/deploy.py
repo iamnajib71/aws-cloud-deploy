@@ -9,6 +9,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+if __package__:
+    from scripts.environment import terraform_environment
+else:
+    from environment import terraform_environment
+
 
 def terraform(*args, check=True):
     result = subprocess.run(
@@ -16,6 +21,7 @@ def terraform(*args, check=True):
         capture_output=True,
         text=True,
         check=False,
+        env=terraform_environment(),
     )
     private = Path("artifacts/private")
     private.mkdir(parents=True, exist_ok=True)

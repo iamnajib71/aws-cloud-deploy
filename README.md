@@ -10,7 +10,14 @@ A reusable starter and CLI for shipping small container APIs to AWS with Terrafo
 
 [Use this template](https://github.com/new?template_name=aws-cloud-deploy&template_owner=iamnajib71) · [Setup guide](docs/setup.md) · [CLI reference](docs/cli.md) · [Contributing](CONTRIBUTING.md)
 
-> **Preview:** source, infrastructure and container checks pass. Live AWS deployment, cloud rollback and actual cost evidence are still pending. The first bootstrap apply is manual, and cloud jobs stay disabled until you enable them. See [verification evidence](docs/evidence.md).
+> **Live preview:** [try the health endpoint](https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com/health). Real item storage, automatic recovery from a broken image and a clean-clone plan with no drift are [recorded](docs/evidence.md). Deployment uses a temporary local AWS session. GitHub OIDC delivery, production promotion, measured monthly cost and owner screenshots remain pending.
+
+What this proves:
+
+- **AWS:** a container API runs on Lambda with HTTP API and DynamoDB storage.
+- **Terraform:** remote state and a clean-clone plan reproduce the live dev environment.
+- **CI/CD with OIDC:** verification passes; OIDC delivery is implemented but awaits a compatible project.
+- **Monitoring and rollback:** dashboard and alarms are configured; a broken image automatically recovered.
 
 ## Start here
 
@@ -74,6 +81,14 @@ A failing candidate restores the previous image and leaves the workflow red to r
 Start with the included FastAPI example: `/health`, `/items` and `/metrics`. Replace the handler and tests while preserving the readiness contract. This starter targets Lambda-compatible containers, rather than arbitrary long-running Docker services.
 
 [Customisation guide →](docs/customise.md)
+
+Try the shared preview with a read-only request:
+
+```sh
+curl --fail https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com/health
+```
+
+The preview also exposes `/items` and `/metrics`. It is public, rate-limited and temporary: use fictional data only and expect throttling or teardown. Create your own installation for development work. Projects using the new AWS Free experience can follow the [local-session route](docs/free-project.md); the OIDC route needs permission to create an identity provider.
 
 ```mermaid
 flowchart LR

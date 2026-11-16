@@ -1,0 +1,35 @@
+{
+  "verified_at_utc": "2026-11-16T09:28:50.917745+00:00",
+  "endpoint": "https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com",
+  "region": "ap-southeast-2",
+  "deployment_mode": "temporary local session; GitHub OIDC pending",
+  "image_digest": "sha256:5765b89665e570772a7ea09dd9eff3a1681fca6e3335f1d1bd7c6d79a58f0b53",
+  "checks": [
+    {
+      "name": "health",
+      "status": 200,
+      "body": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "create fictional item",
+      "status": 201,
+      "body": {
+        "id": "4bda12b5-7b7a-4e79-a8e2-6507f4ba57b2",
+        "name": "Developer preview item (synthetic)",
+        "expires_at": 1794907728
+      }
+    },
+    {
+      "name": "read persisted item",
+      "status": 200,
+      "created_item_found": true
+    },
+    {
+      "name": "metrics",
+      "status": 200,
+      "request_counter_present": true
+    }
+  ]
+}

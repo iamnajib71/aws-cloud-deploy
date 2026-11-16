@@ -2,13 +2,15 @@
 
 **Actual monthly cost: pending. No Cost Explorer screenshot has been captured.** The owner must record the reporting period, region, usage, gross service cost, credits and net billed cost. A partially elapsed month is month-to-date, not an actual full monthly cost.
 
+The live dev preview runs in `ap-southeast-2` on the new AWS Free experience with finite credits. No billing-plan upgrade was performed. This proves deployment, not permanent free hosting. Only dev is running; prod has not been deployed. See the [live evidence](evidence.md).
+
 The running target is below about US$2/month for very light demo traffic **when the account has enough applicable free allowance**. AWS eligibility and credits vary by account creation date and other account usage. Verify them in Billing before deploying. Without dashboard free allowance, this design can exceed the target even with no traffic: run it for a short recorded demo, then destroy it.
 
 ## Planning assumptions (estimates, not observed usage)
 
 | Input | Assumption / cost implication |
 |---|---|
-| Region | `us-east-1` is the documented example; check prices for any other region. |
+| Region | The live preview uses `ap-southeast-2`; check the selected project's regional prices. |
 | Traffic | At most 1,000 requests per environment per month for planning. A public endpoint does not enforce this limit. |
 | Lambda | At 128 MiB and assumed average 100 ms, 2,000 requests use 25 GB-seconds; expected within eligible free allowance. Cold starts increase actual duration. |
 | ECR | Keep total stored compressed image layers around 1 GB or less. At the illustrative US$0.10/GB-month rate, that is around US$0.10/month before credits. Immutable tags accumulate; inspect stored bytes and remove old unused images or destroy after demos. |
@@ -24,7 +26,7 @@ These are inputs for an estimate, not a guarantee. There is no NAT gateway, EKS,
 
 Provider default tags set Project, Environment, Owner and ManagedBy on taggable resources. Relationships such as IAM inline policies and API routes do not support tags. The account-wide budget includes charges that cannot be attributed by those tags. State storage is deliberately included in that guard.
 
-API throttling and reserved Lambda concurrency reduce burst exposure; sustained public traffic can still exceed US$2. AWS Budgets alerts **do not stop resources**. Neither an email alert nor TTL is a cost cap. Remove the endpoint and destroy the stack if usage is unexpected.
+API throttling reduces burst exposure; Lambda uses shared concurrency by default because small quotas may not support a reservation. Sustained public traffic can still exceed US$2. AWS Budgets alerts **do not stop resources**. Neither an email alert nor TTL is a cost cap. Remove the endpoint and destroy the stack if usage is unexpected.
 
 `make destroy` removes the application, bootstrap, images, logs, dashboards and budget; it retains the state bucket and its state data. A non-empty retained bucket prevents an unconditional $0-footprint claim. See [teardown verification](runbook.md#destroy-and-verify) for strict-zero owner cleanup.
 

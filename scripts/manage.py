@@ -6,10 +6,17 @@ import os
 import subprocess
 from pathlib import Path
 
+if __package__:
+    from scripts.environment import terraform_environment
+else:
+    from environment import terraform_environment
+
 
 def run(root, *args, capture=False):
     command = [os.getenv("TERRAFORM", "terraform"), f"-chdir=infra/{root}", *args]
-    return subprocess.run(command, check=True, text=True, capture_output=capture)
+    return subprocess.run(
+        command, check=True, text=True, capture_output=capture, env=terraform_environment()
+    )
 
 
 def configure(config, root, environment=None):

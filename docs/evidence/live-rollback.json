@@ -1,0 +1,20 @@
+{
+  "started_at_utc": "2026-11-16T09:38:34.361113+00:00",
+  "completed_at_utc": "2026-11-16T09:40:58.804234+00:00",
+  "mode": "temporary local session; not a GitHub workflow run",
+  "candidate_digest": "sha256:97bcc77f2177ae37d4ea40a3eeef7ebd840f1a909d4744c7ba02dca235c4b086",
+  "restored_digest": "sha256:5765b89665e570772a7ea09dd9eff3a1681fca6e3335f1d1bd7c6d79a58f0b53",
+  "candidate_release_exit_code": 1,
+  "checks": [
+    {
+      "phase": "candidate",
+      "healthy": false
+    },
+    {
+      "phase": "restored",
+      "healthy": true
+    }
+  ],
+  "terraform_state_matches_previous_image": true,
+  "filesystem_layers_match_scanned_baseline": true
+}

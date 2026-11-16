@@ -1,0 +1,16 @@
+{
+  "recorded_at_utc": "2026-11-16T09:42:03.853458+00:00",
+  "source_commit": "28bcd95ac9f0f1bf08d3878aefcabaf395417855",
+  "deployed_image_digest": "sha256:5765b89665e570772a7ea09dd9eff3a1681fca6e3335f1d1bd7c6d79a58f0b53",
+  "tool": "Trivy 0.76.2",
+  "mode": "offline image archive scan using downloaded vulnerability database",
+  "severity_gate": [
+    "HIGH",
+    "CRITICAL"
+  ],
+  "findings_at_gate": 0,
+  "exit_code": 0,
+  "exceptions": [],
+  "database_updated_at": null,
+  "note": "Sanitised summary; raw archive and report remain private because registry metadata can identify the project."
+}

@@ -2,6 +2,8 @@
 
 Recorded on 15 November 2026. Machine-readable results: [local-checks.json](local-checks.json).
 
+The live deployment update passes 36 Python tests and 3 Terraform mock tests. It also corrects Windows environment-variable spelling for Terraform. [Live deployment and recovery evidence](../evidence.md) is recorded separately.
+
 The subsequent CLI usability update passes 32 tests, including the original API/recovery checks. Its separate [validation record](cli-validation.json) and actual [CLI help output](cli-help.txt) cover configuration, prerequisite diagnostics and endpoint validation. The earlier results below describe the initial implementation.
 
 The same verification gates also passed on a [GitHub-hosted runner](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43679091838). Dev and prod release jobs were skipped because owner bootstrap was not marked ready. This is verification evidence, not a cloud deployment.
@@ -42,4 +44,4 @@ Windows sandbox restrictions prevented local plugin sockets and async event loop
 
 The initial vendor base image scan found vulnerable system RPMs, the local emulator and packages bundled inside pip. The Dockerfile applies vendor security updates and removes the emulator and build-only installer. No image finding was suppressed.
 
-These results do **not** prove AWS IAM permissions, successful Terraform apply, live alarm delivery, no drift from a live account, automatic cloud rollback, measured cost or zero residual charges. Those remain separately pending in the [evidence register](../evidence.md).
+These results do **not** prove AWS IAM permissions, successful Terraform apply, live alarm delivery, no drift from a live account, automatic cloud rollback, measured cost or zero residual charges. See their current individual status in the [evidence register](../evidence.md).

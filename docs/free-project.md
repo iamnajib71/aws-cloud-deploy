@@ -45,4 +45,6 @@ Free-plan credits and allowances are finite. A credit-funded demo is not permane
 
 `python -m cloud_deploy destroy` removes dev, prod if present, and bootstrap using the mode recorded in local configuration. It retains the state bucket. The `make destroy` alias remains available.
 
+The verified upstream demo completed this command, including skipping a prod environment that had never been deployed. The owner then approved a separate final cleanup: private copies of the three current remote states were verified before deleting all state-object versions and the bucket. That additional destructive step is intentionally outside the default destroy command. Recreate the backend before redeploying after full cleanup. See [teardown evidence](evidence/teardown.json).
+
 References: [managed project policies](https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html), [credential-process output](https://docs.aws.amazon.com/cli/latest/reference/configure/export-credentials.html), [advanced activation consequences](https://docs.aws.amazon.com/accounts/latest/reference/activate-advanced-features.html).

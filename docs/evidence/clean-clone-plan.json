@@ -1,0 +1,10 @@
+{
+  "verified_at_utc": "2026-11-16T09:41:31.841605+00:00",
+  "source_commit": "28bcd95ac9f0f1bf08d3878aefcabaf395417855",
+  "environment": "dev",
+  "region": "ap-southeast-2",
+  "command": "terraform -chdir=infra/live plan -input=false -detailed-exitcode",
+  "exit_code": 0,
+  "no_drift": true,
+  "checked_after_live_rollback": true
+}

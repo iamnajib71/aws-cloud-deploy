@@ -1,0 +1,25 @@
+{
+  "verified_at_utc": "2026-11-16T09:40:28.184406+00:00",
+  "region": "ap-southeast-2",
+  "email_subscription": "confirmed",
+  "dashboard_widgets": [
+    "Requests",
+    "Server errors",
+    "p95 latency (ms)"
+  ],
+  "alarms": [
+    {
+      "name": "aws-cloud-deploy-dev-5xx-rate",
+      "state": "OK",
+      "actions_enabled": true,
+      "notification_actions": 1
+    },
+    {
+      "name": "aws-cloud-deploy-dev-latency",
+      "state": "OK",
+      "actions_enabled": true,
+      "notification_actions": 1
+    }
+  ],
+  "limits": "API configuration readback only; receipt of an alarm notification and owner screenshots are not yet evidenced."
+}

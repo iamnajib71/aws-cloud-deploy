@@ -1,21 +1,25 @@
 # Evidence register
 
-The repository currently contains implementation and local checks. It does not yet establish hands-on deployment in the owner's AWS account.
+The dev API is deployed to real AWS in `ap-southeast-2`. [Try readiness](https://swmid4csm2.execute-api.ap-southeast-2.amazonaws.com/health). Deployment and automatic recovery used a temporary local session because this project's managed policy blocks OIDC provider creation. These results are separate from hosted CI verification.
 
 | Claim | Required evidence | Status |
 |---|---|---|
 | Application and recovery logic tested locally | [Local validation](evidence/local-validation.md), repeatable tests | See local report |
 | User CLI and configuration safety | [CLI validation](evidence/cli-validation.json), [help output](evidence/cli-help.txt) and `tests/test_cli.py` | Passed locally; no cloud apply |
-| Hosted verification | [Successful run](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43679091838): source tests, Terraform validation/lint, tfsec, image build and Trivy | Passed; AWS jobs skipped |
-| Healthy release to real AWS | Exact successful Deploy workflow URL, redacted endpoint check and Terraform result | Pending |
-| Broken release automatically restored | Exact rejected Deploy workflow URL with explicit rollback/readiness result; before/after digests redacted consistently | Pending |
+| Hosted verification | [Successful run](https://github.com/iamnajib71/aws-cloud-deploy/actions/runs/43839148817): source tests, Terraform validation/lint, tfsec, image build and Trivy | Passed; AWS jobs skipped |
+| Healthy release to real AWS via local session | [Health, fictional item persistence and metrics](evidence/live-verification.json) | Passed |
+| GitHub OIDC deployment | Exact successful and rejected Deploy workflow URLs | Pending; identity-provider operations blocked in this project |
+| Broken image automatically restored via local session | [Rejected candidate and recovered digest](evidence/live-rollback.json), `scripts/deploy.py` | Passed; candidate command exits 1 to report rejection |
 | Protected same-image promotion | Prod environment approval and matching dev/prod digest, with run links | Pending |
-| No drift from a clean clone | Redacted `plan -detailed-exitcode` result with exit 0, commit and environment | Pending |
-| Image scan acceptance | Trivy HIGH/CRITICAL report for the deployed digest | Pending |
-| Monitoring and email delivery | Owner dashboard, alarm and subscription/notification screenshots | Pending |
+| No drift from a clean clone | [Post-recovery plan](evidence/clean-clone-plan.json), source commit and exit 0 | Passed |
+| Image scan acceptance | [Sanitised Trivy summary for deployed digest](evidence/deployed-image-scan.json) | No HIGH/CRITICAL findings; no image exceptions |
+| Monitoring configuration and subscription | [AWS API readback](evidence/monitoring-verification.json) | Dashboard, two alarms and confirmed email subscription verified |
+| Alarm delivery and screenshots | Owner dashboard, alarm and notification screenshots | Pending; confirmation alone does not establish alarm delivery |
 | Monthly running cost | Owner Cost Explorer screenshot, period, gross usage and net cost | Pending |
-| Teardown | Redacted Terraform destroys, service checks, delayed billing review | Pending |
+| Teardown | Redacted Terraform destroys, service checks, delayed billing review | Pending; preview is currently running |
 | Demo | Owner-recorded 30–90 second GIF showing deployment and recovery | Pending |
+
+Machine-readable records are sanitised observations from actual checks, not independent audit attestations. Raw state, plans, registry metadata and Terraform logs remain private. The deployed application image was built from commit `28bcd95ac9f0f1bf08d3878aefcabaf395417855`. The subsequent Windows runner correction was exercised during recovery and does not alter the image contents. Never describe local recovery as a GitHub workflow run.
 
 Workflow URLs must identify actual runs, not the workflow landing page. A rejected deployment should remain red even when recovery succeeds. Record the reason clearly so a reviewer can distinguish expected rejection from an unresolved incident.
 

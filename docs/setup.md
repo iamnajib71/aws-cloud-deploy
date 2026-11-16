@@ -2,9 +2,11 @@
 
 ## Owner-only prerequisites
 
+For the new AWS Free experience, check [local-session deployment](free-project.md) first. Its managed policy blocks GitHub OIDC provider operations, so the standard automated bootstrap below requires an AWS environment that permits them.
+
 The owner must create the AWS account, enable root MFA, choose/create the budget email and personally run the initial Terraform applies. Do not use the root identity for routine work. Use a short-lived administrative session, such as IAM Identity Center. Do not create repository access keys.
 
-Install Terraform matching the version constraint, AWS CLI v2, Docker, Python and optionally Make. Start Docker. Choose one region and keep it consistent. Check Lambda concurrency quotas: this example reserves a small concurrency allocation and requires enough unreserved account concurrency; request a quota increase if AWS rejects the reservation. Confirm spending/free-tier eligibility in the billing console.
+Install Terraform matching the version constraint, AWS CLI v2, Docker, Python and optionally Make. Start Docker. Choose one region and keep it consistent. Lambda uses shared concurrency by default so a small new-project quota does not block deployment. An optional reservation requires sufficient unreserved capacity. Confirm spending/free-tier eligibility in the billing console.
 
 Use an isolated demo account: the HTTP API permission scope and account-wide budget are unsuitable for an account holding unrelated production services. Check for an existing GitHub OIDC provider before bootstrap. If one already exists, import it into the bootstrap only when this project owns its lifecycle; otherwise adapt the provider reference and do not destroy a shared provider.
 
@@ -70,6 +72,10 @@ Set repository variable `AWS_REGION`. Set repository secrets `STATE_BUCKET`, `AL
 Create GitHub environments `dev` and `prod`. Each gets its corresponding `AWS_DEPLOY_ROLE_ARN` environment secret. Restrict deployment branches to `main` for both. Configure a required owner reviewer for `prod` **before running a release**. This solo lab allows owner self-review so its owner can demonstrate manual approval; a team deployment should require an independent reviewer. The workflow's environment field alone does not enforce manual approval. Verify your repository/plan supports these protection rules.
 
 Require Verify checks for `main` and review same-repository PRs before running their workflows. Fork PRs run static verification only, with no AWS plan or comment credentials. Never switch to `pull_request_target` to execute PR code with cloud access. Require reviewed approval for outside collaborators' workflow runs.
+
+## OIDC subject compatibility
+
+Before planning an OIDC-enabled bootstrap, inspect your repository's exact subject prefix with `gh api repos/YOUR-OWNER/YOUR-REPOSITORY/actions/oidc/customization/sub`. Set `TF_VAR_github_oidc_subject_prefix` to its `sub_claim_prefix` value, without adding a branch or environment suffix. New GitHub repositories include immutable owner/repository IDs in that prefix; an older name-only example may not match their tokens.
 
 ## Deploy and verify
 

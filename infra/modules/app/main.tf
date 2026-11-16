@@ -1,6 +1,15 @@
 variable "name" { type = string }
 variable "image_uri" { type = string }
 variable "runtime_role_arn" { type = string }
+variable "reserved_concurrent_executions" {
+  type        = number
+  default     = -1
+  description = "-1 uses the shared quota; a reservation requires sufficient unreserved concurrency."
+  validation {
+    condition     = var.reserved_concurrent_executions >= -1 && floor(var.reserved_concurrent_executions) == var.reserved_concurrent_executions
+    error_message = "Use -1 for the shared quota, 0 to disable invocations, or a positive integer."
+  }
+}
 resource "aws_dynamodb_table" "items" {
   name         = "${var.name}-items"
   billing_mode = "PAY_PER_REQUEST"
@@ -32,7 +41,7 @@ resource "aws_lambda_function" "api" {
   architectures                  = ["x86_64"]
   memory_size                    = 128
   timeout                        = 10
-  reserved_concurrent_executions = 2
+  reserved_concurrent_executions = var.reserved_concurrent_executions
   environment { variables = { TABLE_NAME = aws_dynamodb_table.items.name } }
   logging_config {
     log_format = "JSON"

@@ -29,6 +29,12 @@ def validate_config(config):
     bucket = config["state_bucket"]
     if ".." in bucket or ".-" in bucket or "-." in bucket or re.fullmatch(r"[0-9.]+", bucket):
         raise ValueError("State bucket must be a valid S3 bucket name, not an IP address.")
+    if "aws_profile" in config and (
+        not isinstance(config["aws_profile"], str) or not config["aws_profile"].strip()
+    ):
+        raise ValueError("AWS profile must be a non-empty string.")
+    if "enable_github_oidc" in config and not isinstance(config["enable_github_oidc"], bool):
+        raise ValueError("enable_github_oidc must be a JSON boolean.")
     return config
 
 
@@ -50,6 +56,8 @@ def initialise(args):
     config = {
         key: getattr(args, key) or input(f"{label}: ").strip() for key, label in fields.items()
     }
+    if args.profile:
+        config["aws_profile"] = args.profile
     validate_config(config)
     # Exclusive creation prevents accidental replacement of an existing private config.
     descriptor = os.open(CONFIG, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -107,7 +115,10 @@ def doctor(check_aws=False):
         config = None
         problems += 1
     if check_aws and config:
-        ready = probe(["aws", "sts", "get-caller-identity", "--region", config["region"]])
+        command = ["aws", "sts", "get-caller-identity", "--region", config["region"]]
+        if config.get("aws_profile"):
+            command.extend(["--profile", config["aws_profile"]])
+        ready = probe(command)
         print(
             "[ok] AWS session (identity hidden)"
             if ready
@@ -127,6 +138,7 @@ def main(argv=None):
     init = commands.add_parser("init", help="create ignored local configuration; no AWS changes")
     for field in ["repository", "region", "state_bucket", "alert_email"]:
         init.add_argument("--" + field.replace("_", "-"))
+    init.add_argument("--profile", help="named temporary-session profile to use for local commands")
     diagnostics = commands.add_parser("doctor", help="check tools and local configuration")
     diagnostics.add_argument(
         "--aws", action="store_true", help="also verify an AWS session read-only"

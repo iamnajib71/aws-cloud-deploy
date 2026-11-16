@@ -13,10 +13,18 @@ def run(root, *args, capture=False):
 
 
 def configure(config, root, environment=None):
+    if config.get("aws_profile"):
+        os.environ["AWS_PROFILE"] = config["aws_profile"]
     os.environ["TF_VAR_region"] = config["region"]
     os.environ["TF_VAR_alert_email"] = config["alert_email"]
     os.environ["TF_VAR_repository"] = config["repository"]
     os.environ["TF_VAR_state_bucket"] = config["state_bucket"]
+    os.environ["TF_VAR_enable_github_oidc"] = str(config.get("enable_github_oidc", True)).lower()
+    if config.get("github_oidc_subject_prefix"):
+        os.environ["TF_VAR_github_oidc_subject_prefix"] = config["github_oidc_subject_prefix"]
+    os.environ["TF_VAR_reserved_concurrent_executions"] = str(
+        config.get("reserved_concurrent_executions", -1)
+    )
     key = environment or "bootstrap"
     data_dir = Path(f".terraform/{key}").resolve()
     data_dir.mkdir(parents=True, exist_ok=True)

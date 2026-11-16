@@ -6,6 +6,10 @@ terraform {
   }
 }
 variable "region" { type = string }
+variable "reserved_concurrent_executions" {
+  type    = number
+  default = -1
+}
 variable "environment" {
   type = string
   validation {
@@ -32,10 +36,11 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 locals { name = "aws-cloud-deploy-${var.environment}" }
 module "app" {
-  source           = "../modules/app"
-  name             = local.name
-  image_uri        = var.image_uri
-  runtime_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.name}-runtime"
+  source                         = "../modules/app"
+  name                           = local.name
+  image_uri                      = var.image_uri
+  runtime_role_arn               = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${local.name}-runtime"
+  reserved_concurrent_executions = var.reserved_concurrent_executions
 }
 module "observability" {
   source = "../modules/observability"

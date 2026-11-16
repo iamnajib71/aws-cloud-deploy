@@ -100,3 +100,30 @@ def test_destroy_requires_valid_config_before_any_cloud_call(monkeypatch):
 def test_configuration_must_be_an_object():
     with pytest.raises(ValueError, match="JSON object"):
         cli.validate_config([])
+
+
+def test_doctor_uses_configured_profile(monkeypatch, config):
+    config["aws_profile"] = "temporary-project"
+    calls = []
+    monkeypatch.setattr(cli.shutil, "which", lambda name: name)
+    monkeypatch.setattr(cli, "load_config", lambda: config)
+    monkeypatch.delenv("TERRAFORM", raising=False)
+
+    def probe(command):
+        calls.append(command)
+        return SimpleNamespace(
+            stdout='{"terraform_version":"1.13.5"}' if command[0] == "terraform" else "aws-cli/2.0",
+            stderr="",
+        )
+
+    monkeypatch.setattr(cli, "probe", probe)
+    assert cli.main(["doctor", "--aws"]) == 0
+    identity = next(command for command in calls if "sts" in command)
+    assert identity[-2:] == ["--profile", "temporary-project"]
+
+
+@pytest.mark.parametrize("field,value", [("aws_profile", 1), ("enable_github_oidc", "false")])
+def test_local_deployment_config_types_are_validated(config, field, value):
+    config[field] = value
+    with pytest.raises(ValueError):
+        cli.validate_config(config)
